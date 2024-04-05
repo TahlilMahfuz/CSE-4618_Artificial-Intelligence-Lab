@@ -14,21 +14,19 @@
 
 from util import manhattanDistance
 from game import Directions
-import random, util
-import math
-
+import random, util,math
 from game import Agent
+
 
 class ReflexAgent(Agent):
     """
-      A reflex agent chooses an action at each choice point by examining
-      its alternatives via a state evaluation function.
+    A reflex agent chooses an action at each choice point by examining
+    its alternatives via a state evaluation function.
 
-      The code below is provided as a guide.  You are welcome to change
-      it in any way you see fit, so long as you don't touch our method
-      headers.
+    The code below is provided as a guide.  You are welcome to change
+    it in any way you see fit, so long as you don't touch our method
+    headers.
     """
-
 
     def getAction(self, gameState):
         """
@@ -37,7 +35,7 @@ class ReflexAgent(Agent):
         getAction chooses among the best options according to the evaluation function.
 
         Just like in the previous project, getAction takes a GameState and returns
-        some Directions.X for some X in the set {North, South, West, East, Stop}
+        some Directions.X for some X in the set {NORTH, SOUTH, WEST, EAST, STOP}
         """
         # Collect legal moves and successor states
         legalMoves = gameState.getLegalActions()
@@ -46,7 +44,7 @@ class ReflexAgent(Agent):
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
 
@@ -89,30 +87,43 @@ class ReflexAgent(Agent):
         if minGhostDistance < 2:
             return -float('inf')
         return score + 1/float(minFoodDistance) - 1/float(minGhostDistance)
-        
+
+
 def scoreEvaluationFunction(currentGameState):
     """
-      This default evaluation function just returns the score of the state.
-      The score is the same one displayed in the Pacman GUI.
+    This default evaluation function just returns the score of the state.
+    The score is the same one displayed in the Pacman GUI.
 
-      This evaluation function is meant for use with adversarial search agents
-      (not reflex agents).
+    This evaluation function is meant for use with adversarial search agents
+    (not reflex agents).
+    """
+    return currentGameState.getScore()
+        # return util.raiseNotDefined();
+    
+
+def scoreEvaluationFunction(currentGameState):
+    """
+    This default evaluation function just returns the score of the state.
+    The score is the same one displayed in the Pacman GUI.
+
+    This evaluation function is meant for use with adversarial search agents
+    (not reflex agents).
     """
     return currentGameState.getScore()
 
 class MultiAgentSearchAgent(Agent):
     """
-      This class provides some common elements to all of your
-      multi-agent searchers.  Any methods defined here will be available
-      to the MinimaxPacmanAgent, AlphaBetaPacmanAgent & ExpectimaxPacmanAgent.
+    This class provides some common elements to all of your
+    multi-agent searchers.  Any methods defined here will be available
+    to the MinimaxPacmanAgent, AlphaBetaPacmanAgent & ExpectimaxPacmanAgent.
 
-      You *do not* need to make any changes here, but you can if you want to
-      add functionality to all your adversarial search agents.  Please do not
-      remove anything, however.
+    You *do not* need to make any changes here, but you can if you want to
+    add functionality to all your adversarial search agents.  Please do not
+    remove anything, however.
 
-      Note: this is an abstract class: one that should not be instantiated.  It's
-      only partially specified, and designed to be extended.  Agent (game.py)
-      is another abstract class.
+    Note: this is an abstract class: one that should not be instantiated.  It's
+    only partially specified, and designed to be extended.  Agent (game.py)
+    is another abstract class.
     """
 
     def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
@@ -207,6 +218,7 @@ class MinimaxAgent(MultiAgentSearchAgent):
 
         return currValue, currAction
 
+        # util.raiseNotDefined()
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
@@ -282,7 +294,8 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
             alpha = max(alpha, currValue)
 
         return currValue, currAction
-    
+ 
+        # util.raiseNotDefined()
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -333,7 +346,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         return currValue, currAction
         
     def expValue(self, gameState, agentIndex, depth):
-        currValue, currAction = 1e9, None
+        currValue, currAction = 0, None
 
         nextAgent = (agentIndex + 1) % gameState.getNumAgents()
         if nextAgent == 0:
@@ -354,7 +367,6 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
         return currValue, currAction
 
-    
 
 
 def betterEvaluationFunction(currentGameState):
@@ -392,6 +404,7 @@ def betterEvaluationFunction(currentGameState):
     
     return score
 
+    # return util.raiseNotDefined()
+
 # Abbreviation
 better = betterEvaluationFunction
-
