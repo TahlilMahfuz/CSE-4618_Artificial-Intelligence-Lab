@@ -14,18 +14,19 @@
 
 from util import manhattanDistance
 from game import Directions
-import random, util,math
+import random, util
+import math
 
 from game import Agent
 
 class ReflexAgent(Agent):
     """
-    A reflex agent chooses an action at each choice point by examining
-    its alternatives via a state evaluation function.
+      A reflex agent chooses an action at each choice point by examining
+      its alternatives via a state evaluation function.
 
-    The code below is provided as a guide.  You are welcome to change
-    it in any way you see fit, so long as you don't touch our method
-    headers.
+      The code below is provided as a guide.  You are welcome to change
+      it in any way you see fit, so long as you don't touch our method
+      headers.
     """
 
 
@@ -36,7 +37,7 @@ class ReflexAgent(Agent):
         getAction chooses among the best options according to the evaluation function.
 
         Just like in the previous project, getAction takes a GameState and returns
-        some Directions.X for some X in the set {NORTH, SOUTH, WEST, EAST, STOP}
+        some Directions.X for some X in the set {North, South, West, East, Stop}
         """
         # Collect legal moves and successor states
         legalMoves = gameState.getLegalActions()
@@ -74,40 +75,44 @@ class ReflexAgent(Agent):
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        pacmanPos = newPos
-        ghostPos = successorGameState.getGhostPositions();
-        foodPos = currentGameState.getFood().asList();
-        
-        ghostDistance = min([math.dist(pacmanPos, ghost) for ghost in ghostPos]);
-        foodDistance = min([math.dist(pacmanPos, food) for food in foodPos]);
-        if action==Directions.STOP:
-            return -math.inf;
-        return ghostDistance-(foodDistance+1);
-        # return successorGameState.getScore()
+        score = successorGameState.getScore()
+        minGhostDistance = float('inf')
+        for ghost in newGhostStates:
+            distance = manhattanDistance(newPos, ghost.getPosition())
+            minGhostDistance = min(minGhostDistance, distance)
 
+        minFoodDistance = float('inf')
+        for food in newFood.asList():
+            distance = manhattanDistance(newPos, food)
+            minFoodDistance = min(minFoodDistance, distance)
+
+        if minGhostDistance < 2:
+            return -float('inf')
+        return score + 1/float(minFoodDistance) - 1/float(minGhostDistance)
+        
 def scoreEvaluationFunction(currentGameState):
     """
-    This default evaluation function just returns the score of the state.
-    The score is the same one displayed in the Pacman GUI.
+      This default evaluation function just returns the score of the state.
+      The score is the same one displayed in the Pacman GUI.
 
-    This evaluation function is meant for use with adversarial search agents
-    (not reflex agents).
+      This evaluation function is meant for use with adversarial search agents
+      (not reflex agents).
     """
     return currentGameState.getScore()
 
 class MultiAgentSearchAgent(Agent):
     """
-    This class provides some common elements to all of your
-    multi-agent searchers.  Any methods defined here will be available
-    to the MinimaxPacmanAgent, AlphaBetaPacmanAgent & ExpectimaxPacmanAgent.
+      This class provides some common elements to all of your
+      multi-agent searchers.  Any methods defined here will be available
+      to the MinimaxPacmanAgent, AlphaBetaPacmanAgent & ExpectimaxPacmanAgent.
 
-    You *do not* need to make any changes here, but you can if you want to
-    add functionality to all your adversarial search agents.  Please do not
-    remove anything, however.
+      You *do not* need to make any changes here, but you can if you want to
+      add functionality to all your adversarial search agents.  Please do not
+      remove anything, however.
 
-    Note: this is an abstract class: one that should not be instantiated.  It's
-    only partially specified, and designed to be extended.  Agent (game.py)
-    is another abstract class.
+      Note: this is an abstract class: one that should not be instantiated.  It's
+      only partially specified, and designed to be extended.  Agent (game.py)
+      is another abstract class.
     """
 
     def __init__(self, evalFn = 'scoreEvaluationFunction', depth = '2'):
@@ -144,20 +149,140 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        
         # util.raiseNotDefined()
+        _, action = self.value(gameState, 0, self.depth)
+        return action
+
+    def value(self, gameState, agentIndex, depth):
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState), Directions.STOP
+        elif agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, depth)
+        elif agentIndex > 0:
+            return self.minValue(gameState, agentIndex, depth)
+        
+    def minValue(self, gameState, agentIndex, depth):
+        currValue, currAction = 1e9, None
+
+        nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+        if nextAgent == 0:
+            nextDepth = depth - 1
+        else:
+            nextDepth = depth
+
+        legalActions = gameState.getLegalActions(agentIndex)
+
+        for action in legalActions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+
+            successorScore, _ = self.value(successorGameState, nextAgent, nextDepth)
+
+            # currValue = min(currValue, successorScore)
+            if successorScore < currValue:
+                currValue = successorScore
+                currAction = action
+
+        return currValue, currAction
+    
+    def maxValue(self, gameState, agentIndex, depth):
+        currValue, currAction = -1e9, None
+
+        nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+        if nextAgent == 0:
+            nextDepth = depth - 1
+        else:
+            nextDepth = depth
+
+        legalActions = gameState.getLegalActions(agentIndex)
+
+        for action in legalActions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+
+            successorScore, _ = self.value(successorGameState, nextAgent, nextDepth)
+
+            # currValue = min(currValue, successorScore)
+            if successorScore > currValue:
+                currValue = successorScore
+                currAction = action
+
+        return currValue, currAction
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
-    Your minimax agent with alpha-beta pruning (question 3)
+      Your minimax agent with alpha-beta pruning (question 3)
     """
 
     def getAction(self, gameState):
         """
-        Returns the minimax action using self.depth and self.evaluationFunction
+          Returns the minimax action using self.depth and self.evaluationFunction
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        _, action = self.value(gameState, 0, self.depth, -1e9, 1e9)
+        return action
+
+    def value(self, gameState, agentIndex, depth, alpha, beta):
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState), Directions.STOP
+        elif agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, depth, alpha, beta)
+        elif agentIndex > 0:
+            return self.minValue(gameState, agentIndex, depth, alpha, beta)
+        
+    def minValue(self, gameState, agentIndex, depth, alpha, beta):
+        currValue, currAction = 1e9, None
+
+        nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+        if nextAgent == 0:
+            nextDepth = depth - 1
+        else:
+            nextDepth = depth
+
+        legalActions = gameState.getLegalActions(agentIndex)
+
+        for action in legalActions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+
+            successorScore, _ = self.value(successorGameState, nextAgent, nextDepth, alpha, beta)
+
+            if successorScore < currValue:
+                currValue = successorScore
+                currAction = action
+
+            if currValue < alpha:
+                return currValue, currAction
+
+            beta = min(beta, currValue)
+
+        return currValue, currAction
+    
+    def maxValue(self, gameState, agentIndex, depth, alpha, beta):
+        currValue, currAction = -1e9, None
+
+        nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+        if nextAgent == 0:
+            nextDepth = depth - 1
+        else:
+            nextDepth = depth
+
+        legalActions = gameState.getLegalActions(agentIndex)
+
+        for action in legalActions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+
+            successorScore, _ = self.value(successorGameState, nextAgent, nextDepth, alpha, beta)
+
+            if successorScore > currValue:
+                currValue = successorScore
+                currAction = action
+
+            if currValue > beta:
+                return currValue, currAction
+
+            alpha = max(alpha, currValue)
+
+        return currValue, currAction
+    
 
 class ExpectimaxAgent(MultiAgentSearchAgent):
     """
@@ -166,23 +291,107 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 
     def getAction(self, gameState):
         """
-        Returns the expectimax action using self.depth and self.evaluationFunction
+          Returns the expectimax action using self.depth and self.evaluationFunction
 
-        All ghosts should be modeled as choosing uniformly at random from their
-        legal moves.
+          All ghosts should be modeled as choosing uniformly at random from their
+          legal moves.
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # util.raiseNotDefined()
+        value, action = self.value(gameState, 0, self.depth)
+        return action
+    
+    def value(self, gameState, agentIndex, depth):
+        if gameState.isWin() or gameState.isLose() or depth == 0:
+            return self.evaluationFunction(gameState), Directions.STOP
+        elif agentIndex == 0:
+            return self.maxValue(gameState, agentIndex, depth)
+        elif agentIndex > 0:
+            return self.expValue(gameState, agentIndex, depth)
+        
+    def maxValue(self, gameState, agentIndex, depth):
+        currValue, currAction = -1e9, None
+
+        nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+        if nextAgent == 0:
+            nextDepth = depth - 1
+        else:
+            nextDepth = depth
+
+        legalActions = gameState.getLegalActions(agentIndex)
+
+        for action in legalActions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+
+            successorScore, _ = self.value(successorGameState, nextAgent, nextDepth)
+
+            # currValue = min(currValue, successorScore)
+            if successorScore > currValue:
+                currValue = successorScore
+                currAction = action
+
+        return currValue, currAction
+        
+    def expValue(self, gameState, agentIndex, depth):
+        currValue, currAction = 1e9, None
+
+        nextAgent = (agentIndex + 1) % gameState.getNumAgents()
+        if nextAgent == 0:
+            nextDepth = depth - 1
+        else:
+            nextDepth = depth
+
+        legalActions = gameState.getLegalActions(agentIndex)
+        if len(legalActions) is not 0:
+            prob = 1.0 / len(legalActions)
+
+        for action in legalActions:
+            successorGameState = gameState.generateSuccessor(agentIndex, action)
+            successorScore, _ = self.value(successorGameState, nextAgent, nextDepth)
+
+            currValue += prob * successorScore
+            currAction = action
+
+        return currValue, currAction
+
+    
+
 
 def betterEvaluationFunction(currentGameState):
     """
-    Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
-    evaluation function (question 5).
+      Your extreme ghost-hunting, pellet-nabbing, food-gobbling, unstoppable
+      evaluation function (question 5).
 
-    DESCRIPTION: <write something here so we know what you did>
+      DESCRIPTION: <write something here so we know what you did>
     """
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    newPos = currentGameState.getPacmanPosition()
+    newFood = currentGameState.getFood()
+    newGhostStates = currentGameState.getGhostStates()
+
+    score = currentGameState.getScore()
+    
+    ghostValue = 10.0   
+    foodValue = 10.0
+    scaredGhostValue = 100.0  
+
+    for x in newGhostStates:
+        dis = manhattanDistance(newPos, x.getPosition())
+        if dis > 0:
+            if x.scaredTimer > 0:
+                score += scaredGhostValue / dis
+            else:
+                score -= ghostValue / dis
+
+    foodList = newFood.asList()
+    minfoodDistance = math.inf
+    for x in foodList: 
+        minfoodDistance = min(minfoodDistance, manhattanDistance(newPos, x))
+
+    score += foodValue / minfoodDistance
+    
+    return score
 
 # Abbreviation
 better = betterEvaluationFunction
+

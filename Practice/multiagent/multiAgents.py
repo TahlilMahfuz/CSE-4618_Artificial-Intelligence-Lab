@@ -28,7 +28,6 @@ class ReflexAgent(Agent):
     headers.
     """
 
-
     def getAction(self, gameState):
         """
         You do not need to change this method, but you're welcome to.
@@ -45,7 +44,7 @@ class ReflexAgent(Agent):
         scores = [self.evaluationFunction(gameState, action) for action in legalMoves]
         bestScore = max(scores)
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
-        chosenIndex = random.choice(bestIndices) # Pick randomly among the best
+        chosenIndex = random.choice(bestIndices)  # Pick randomly among the best
 
         "Add more of your code here if you want to"
 
@@ -68,21 +67,34 @@ class ReflexAgent(Agent):
         """
         # Useful information you can extract from a GameState (pacman.py)
         successorGameState = currentGameState.generatePacmanSuccessor(action)
-        newPos = successorGameState.getPacmanPosition()
-        newFood = successorGameState.getFood()
-        newGhostStates = successorGameState.getGhostStates()
-        newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
         "*** YOUR CODE HERE ***"
-        pacmanPos = newPos
-        ghostPos = successorGameState.getGhostPositions();
-        foodPos = currentGameState.getFood().asList();
-        
-        ghostDistance = min([math.dist(pacmanPos, ghost) for ghost in ghostPos]);
-        foodDistance = min([math.dist(pacmanPos, food) for food in foodPos]);
-        if action==Directions.STOP:
-            return -math.inf;
-        return ghostDistance-(foodDistance+1);
+        ghost_distance = self.distance_to_nearest_ghost(successorGameState)
+        food_distance = self.distance_to_nearest_food(successorGameState, currentGameState)
+        return ghost_distance / (food_distance + 1)
+
+    def distance_to_nearest_ghost(self, gameState):
+        pacmanPos = gameState.getPacmanPosition()
+        ghostsPos = gameState.getGhostPositions()
+        distances = [math.dist(pacmanPos, ghostPos) for ghostPos in ghostsPos]
+        return min(distances)
+
+    def distance_to_nearest_food(self, nextState, currentState):
+        pacmanPos = nextState.getPacmanPosition()
+        foodsPos = currentState.getFood().asList()
+        distances = [math.dist(pacmanPos, foodPos) for foodPos in foodsPos]
+        return min(distances)
+
+
+def scoreEvaluationFunction(currentGameState):
+    """
+    This default evaluation function just returns the score of the state.
+    The score is the same one displayed in the Pacman GUI.
+
+    This evaluation function is meant for use with adversarial search agents
+    (not reflex agents).
+    """
+    return currentGameState.getScore()
         # return util.raiseNotDefined();
     
 
