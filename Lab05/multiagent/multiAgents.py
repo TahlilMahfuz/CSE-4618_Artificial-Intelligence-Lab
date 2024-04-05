@@ -391,16 +391,18 @@ def betterEvaluationFunction(currentGameState):
         dis = manhattanDistance(newPos, x.getPosition())
         if dis > 0:
             if x.scaredTimer > 0:
-                score += scaredGhostValue / dis
+                score += scaredGhostValue * (1/dis)
             else:
-                score -= ghostValue / dis
+                score -= ghostValue * (1/dis)
+        else:
+            score = -math.inf
 
     foodList = newFood.asList()
     minfoodDistance = math.inf
     for x in foodList: 
         minfoodDistance = min(minfoodDistance, manhattanDistance(newPos, x))
 
-    score += foodValue / minfoodDistance
+    score += foodValue * (1/minfoodDistance)
     
     return score
 
