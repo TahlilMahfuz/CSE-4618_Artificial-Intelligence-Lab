@@ -74,19 +74,18 @@ class ReflexAgent(Agent):
 
         "*** YOUR CODE HERE ***"
         score = successorGameState.getScore()
-        minGhostDistance = float('inf')
+        minGhostDistance = math.inf
         for ghost in newGhostStates:
-            distance = manhattanDistance(newPos, ghost.getPosition())
-            minGhostDistance = min(minGhostDistance, distance)
+            minGhostDistance = min(minGhostDistance, manhattanDistance(newPos, ghost.getPosition()))
 
-        minFoodDistance = float('inf')
+        minFoodDistance = math.inf
         for food in newFood.asList():
-            distance = manhattanDistance(newPos, food)
-            minFoodDistance = min(minFoodDistance, distance)
+            minFoodDistance = min(minFoodDistance, manhattanDistance(newPos, food))
 
         if minGhostDistance < 2:
-            return -float('inf')
-        return score + 1/float(minFoodDistance) - 1/float(minGhostDistance)
+            return -math.inf
+        
+        return score + 1/minFoodDistance - 1/minGhostDistance
 
 
 def scoreEvaluationFunction(currentGameState):
@@ -387,24 +386,23 @@ def betterEvaluationFunction(currentGameState):
     foodValue = 10.0
     scaredGhostValue = 100.0  
 
-    for x in newGhostStates:
-        dis = manhattanDistance(newPos, x.getPosition())
-        if dis > 0:
-            if x.scaredTimer > 0:
-                score += scaredGhostValue * (1/dis)
+    minFoodDistance = math.inf
+    for food in newFood.asList():
+        minFoodDistance = min(minFoodDistance, manhattanDistance(newPos, food))
+
+    score = score + foodValue*(1/minFoodDistance)
+
+    for ghost in newGhostStates:
+        minGhostDistance = manhattanDistance(newPos, ghost.getPosition())
+        if minGhostDistance > 0:
+            if ghost.scaredTimer > 0:
+                score += scaredGhostValue*(1/minGhostDistance)
             else:
-                score -= ghostValue * (1/dis)
+                score -= ghostValue/minGhostDistance
         else:
-            score = -math.inf
-
-    foodList = newFood.asList()
-    minfoodDistance = math.inf
-    for x in foodList: 
-        minfoodDistance = min(minfoodDistance, manhattanDistance(newPos, x))
-
-    score += foodValue * (1/minfoodDistance)
-    
-    return score
+            return -math.inf
+        
+    return score;
 
     # return util.raiseNotDefined()
 
