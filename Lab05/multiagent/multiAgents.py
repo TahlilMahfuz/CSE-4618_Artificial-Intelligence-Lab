@@ -379,6 +379,7 @@ def betterEvaluationFunction(currentGameState):
     newPos = currentGameState.getPacmanPosition()
     newFood = currentGameState.getFood()
     newGhostStates = currentGameState.getGhostStates()
+    newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
     score = currentGameState.getScore()
     
@@ -393,12 +394,12 @@ def betterEvaluationFunction(currentGameState):
     score = score + foodValue*(1/minFoodDistance)
 
     for ghost in newGhostStates:
-        minGhostDistance = manhattanDistance(newPos, ghost.getPosition())
-        if minGhostDistance > 0:
-            if ghost.scaredTimer > 0:
-                score += scaredGhostValue*(1/minGhostDistance)
+        ghostDistance = manhattanDistance(newPos, ghost.getPosition())
+        if ghostDistance > 0:
+            if ghost.scaredTimer > 2:
+                score += scaredGhostValue*(1/ghostDistance)
             else:
-                score -= ghostValue/minGhostDistance
+                score -= ghostValue*(1/ghostDistance)
         else:
             return -math.inf
         
