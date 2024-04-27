@@ -21,41 +21,41 @@
 
 def question2():
     answerDiscount = 0.9
-    answerNoise = 0.01
+    answerNoise = 0.01 #Goes to the directed way
     return answerDiscount, answerNoise
 
 def question3a():
     answerDiscount = 0.9
     answerNoise = 0.01
-    answerLivingReward = -5
+    answerLivingReward = -5 #Goes to the closest exit
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3b():
-    answerDiscount = 0.5
+    answerDiscount = 0.3 #will get the long path as calculated values will be less
     answerNoise = 0.2
-    answerLivingReward = -2
+    answerLivingReward = -1
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3c():
     answerDiscount = 0.9
-    answerNoise = 0.2
+    answerNoise = 0.01 #Noise less so goes with the direction
     answerLivingReward = -1
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3d():
     answerDiscount = 0.9
-    answerNoise = 0.3
+    answerNoise = 0.5 #Will direct agent upwards
     answerLivingReward = -1
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3e():
-    answerDiscount = 1
+    answerDiscount = 0.9
     answerNoise = 0.2
-    answerLivingReward = 1
+    answerLivingReward = 10 #Will never try to exit as living reward is high
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
