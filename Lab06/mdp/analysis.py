@@ -32,7 +32,7 @@ def question3a():
     # If not possible, return 'NOT POSSIBLE'
 
 def question3b():
-    answerDiscount = 0.3 #will get the long path as calculated values will be less
+    answerDiscount = 0.3           #will get the long path as calculated values will be less
     answerNoise = 0.2
     answerLivingReward = -1
     return answerDiscount, answerNoise, answerLivingReward
@@ -40,22 +40,22 @@ def question3b():
 
 def question3c():
     answerDiscount = 0.9
-    answerNoise = 0.01 #Noise less so goes with the direction
+    answerNoise = 0.01                #Noise less so goes with the direction
     answerLivingReward = -1
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3d():
-    answerDiscount = 0.9
-    answerNoise = 0.5 #Will direct agent upwards
-    answerLivingReward = -1
+    answerDiscount = 0.2
+    answerNoise = 0.2
+    answerLivingReward = 2
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
 def question3e():
-    answerDiscount = 0.9
-    answerNoise = 0.2
-    answerLivingReward = 10 #Will never try to exit as living reward is high
+    answerDiscount = 0.01
+    answerNoise = 0
+    answerLivingReward = 1000                  # Will never try to exit as living reward is high
     return answerDiscount, answerNoise, answerLivingReward
     # If not possible, return 'NOT POSSIBLE'
 
